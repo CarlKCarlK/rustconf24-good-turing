@@ -3,28 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Line Counter</title>
+    <title>Good-Turing Estimation</title>
 </head>
 <body>
-    <h1>Line Counter</h1>
+    <h1>Good-Turing Estimation</h1>
     <input type="file" id="fileInput" />
-    <p id="lineCount">Lines in file: </p>
+    <p id="lineCount"></p>
 
-    <script>
+    <script type="module">
+        import init, { good_turning_js } from './pkg/good_turing.js';
+
         document.getElementById('fileInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
-
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    const content = e.target.result;
-                    const lines = content.split(/\r\n|\n/).length;
-                    document.getElementById('lineCount').textContent = `Lines in file: ${lines}`;
+                reader.onload = async function(e) {
+                    await init(); // be sure 'good_turning_js' is ready
+                    const u8array = new TextEncoder().encode(e.target.result);
+                    const u8array = new Uint8Array(e.target.result);
+                    const result = good_turning_js(u8array);
+                    const prediction = result[0].toLocaleString();
+                    const actual = result[1].toLocaleString();
+                    const outputText = `Prediction (words that appear exactly once on even lines): ${prediction}<br>Actual distinct words that appear only on odd lines: ${actual}`;
+                    document.getElementById('lineCount').innerHTML = outputText;
                 };
-
                 reader.readAsText(file);
             } else {
-                document.getElementById('lineCount').textContent = 'Lines in file: ';
+                document.getElementById('lineCount').innerHTML = '';
             }
         });
     </script>
