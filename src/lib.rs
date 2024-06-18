@@ -1,25 +1,34 @@
 use std::{
     collections::{HashMap, HashSet},
-    io::{BufRead, BufReader, Read},
+    io::{self, BufRead, BufReader, Read},
 };
 
 use lazy_regex::regex;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub fn good_turning_js(data: &[u8]) -> Vec<u64> {
-    let reader = BufReader::new(data);
-    let (prediction, actual) = good_turning(reader);
-    vec![prediction as u64, actual as u64]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
 }
 
-pub fn good_turning<R: Read>(reader: BufReader<R>) -> (usize, usize) {
+#[wasm_bindgen]
+pub fn good_turning_js(data: &[u8]) -> Result<Vec<u64>, String> {
+    let reader = BufReader::new(data);
+    let result = good_turning(reader);
+    match result {
+        Ok((prediction, actual)) => Ok(vec![prediction as u64, actual as u64]),
+        Err(e) => Err(format!("Error processing data: {}", e)),
+    }
+}
+
+pub fn good_turning<R: Read>(reader: BufReader<R>) -> Result<(usize, usize), io::Error> {
     let re = regex!(r"\b\w+\b");
     let mut word_to_count_even = HashMap::new();
     let mut word_set_odd = HashSet::new();
 
     for (index, line) in reader.lines().enumerate() {
-        let line = line.expect("could not read line");
+        let line = line?;
         // split into words with regex
         for word in re.find_iter(&line) {
             let word = word.as_str();
@@ -42,7 +51,7 @@ pub fn good_turning<R: Read>(reader: BufReader<R>) -> (usize, usize) {
         .filter(|word| !word_to_count_even.contains_key(word))
         .count();
 
-    (singleton_count_even, only_odd_count)
+    Ok((singleton_count_even, only_odd_count))
 }
 
 // fn main() {
@@ -70,8 +79,8 @@ mod tests {
     #[test]
     fn test_process_file() {
         let file_name = "pg100.txt";
-        let reader = BufReader::new(File::open(file_name).expect("could not open file"));
-        let (prediction, actual) = good_turning(reader);
+        let reader = BufReader::new(File::open(file_name).unwrap());
+        let (prediction, actual) = good_turning(reader).unwrap();
         assert_eq!(prediction, 10223);
         assert_eq!(actual, 7967);
     }
@@ -80,7 +89,7 @@ mod tests {
     #[wasm_bindgen_test]
     fn test_good_turning_js() {
         let data = include_bytes!("../pg100.txt");
-        let result = good_turning_js(data);
+        let result = good_turning_js(data).unwrap();
         assert_eq!(result, vec![10223, 7967]);
     }
 }

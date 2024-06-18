@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Good-Turing Estimation</title>
 </head>
+
 <body>
     <h1>Good-Turing Estimation</h1>
     <input type="file" id="fileInput" />
@@ -13,25 +15,31 @@
     <script type="module">
         import init, { good_turning_js } from './pkg/good_turing.js';
 
-        document.getElementById('fileInput').addEventListener('change', function(event) {
+        document.getElementById('fileInput').addEventListener('change', function (event) {
             const file = event.target.files[0];
-            if (file) {
+            if (file) { // If a file was selected
                 const reader = new FileReader();
-                reader.onload = async function(e) {
-                    await init(); // be sure 'good_turning_js' is ready
-                    const u8array = new TextEncoder().encode(e.target.result);
+                // What to do when the file is read
+                reader.onload = async function (e) {
+                    await init(); // Ensure 'good_turning_js' is ready
+                    // View the memory buffer as a Uint8Array
                     const u8array = new Uint8Array(e.target.result);
-                    const result = good_turning_js(u8array);
-                    const prediction = result[0].toLocaleString();
-                    const actual = result[1].toLocaleString();
-                    const outputText = `Prediction (words that appear exactly once on even lines): ${prediction}<br>Actual distinct words that appear only on odd lines: ${actual}`;
-                    document.getElementById('lineCount').innerHTML = outputText;
+                    try {
+                        const result = await good_turning_js(u8array);
+                        document.getElementById('lineCount').innerHTML =
+                            `Prediction (words that appear exactly once on even lines): ${result[0].toLocaleString()}<br>` +
+                            `Actual distinct words that appear only on odd lines: ${result[1].toLocaleString()}`;
+                    } catch (err) {
+                        document.getElementById('lineCount').innerHTML = `Error: ${err}`;
+                    }
                 };
-                reader.readAsText(file);
+                // Now start to read the file as memory buffer
+                reader.readAsArrayBuffer(file);
             } else {
                 document.getElementById('lineCount').innerHTML = '';
             }
         });
     </script>
 </body>
+
 </html>
