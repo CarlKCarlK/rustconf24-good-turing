@@ -6,23 +6,7 @@ use std::{
 use lazy_regex::regex;
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
-
-#[wasm_bindgen]
-pub fn good_turning_js(data: &[u8]) -> Result<Vec<u64>, String> {
-    let reader = BufReader::new(data);
-    let result = good_turning(reader);
-    match result {
-        Ok((prediction, actual)) => Ok(vec![prediction as u64, actual as u64]),
-        Err(e) => Err(format!("Error processing data: {}", e)),
-    }
-}
-
-pub fn good_turning<R: Read>(reader: BufReader<R>) -> Result<(usize, usize), io::Error> {
+fn good_turning<R: Read>(reader: BufReader<R>) -> Result<(usize, usize), io::Error> {
     let re = regex!(r"\b\w+\b");
     let mut word_to_count_even = HashMap::new();
     let mut word_set_odd = HashSet::new();
@@ -54,6 +38,15 @@ pub fn good_turning<R: Read>(reader: BufReader<R>) -> Result<(usize, usize), io:
     Ok((singleton_count_even, only_odd_count))
 }
 
+#[wasm_bindgen]
+pub fn good_turning_js(data: &[u8]) -> Result<Vec<u64>, String> {
+    let reader = BufReader::new(data);
+    match good_turning(reader) {
+        Ok((prediction, actual)) => Ok(vec![prediction as u64, actual as u64]),
+        Err(e) => Err(format!("Error processing data: {}", e)),
+    }
+}
+
 // fn main() {
 //     let file_name = env::args().nth(1).expect("no file name given");
 //     let (singleton_count_even, only_odd_count) = good_turning(&file_name);
@@ -78,8 +71,7 @@ mod tests {
 
     #[test]
     fn test_process_file() {
-        let file_name = "pg100.txt";
-        let reader = BufReader::new(File::open(file_name).unwrap());
+        let reader = BufReader::new(File::open("pg100.txt").unwrap());
         let (prediction, actual) = good_turning(reader).unwrap();
         assert_eq!(prediction, 10223);
         assert_eq!(actual, 7967);
