@@ -1,12 +1,12 @@
 use std::{
     collections::{HashMap, HashSet},
-    io::{self, BufRead, BufReader, Read},
+    io::{self, BufRead, BufReader},
 };
 
 use lazy_regex::regex;
 use wasm_bindgen::prelude::*;
 
-fn good_turning<R: Read>(reader: BufReader<R>) -> Result<(usize, usize), io::Error> {
+fn good_turning<R: BufRead>(reader: R) -> Result<(usize, usize), io::Error> {
     let re = regex!(r"\b\w+\b");
     let mut word_to_count_even = HashMap::new();
     let mut word_set_odd = HashSet::new();
