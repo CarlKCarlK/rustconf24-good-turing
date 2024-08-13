@@ -8,7 +8,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 lazy-regex = "3.1.0"
-wasm-bindgen = "0.2"
+wasm-bindgen = "0.2.93"
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3.42"
+wasm-bindgen-test = "0.3.43"

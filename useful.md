@@ -4,8 +4,7 @@
 
 ```bash
 cargo test
-cargo test --target wasm-wasi-wasi
-wasm-pack test --chrome --headless
+cargo test --target wasm32-unknown-unknown
 ```
 
 ## Compiling for WASM

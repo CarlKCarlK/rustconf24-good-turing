@@ -6,7 +6,7 @@ use std::{
 use lazy_regex::regex;
 use wasm_bindgen::prelude::*;
 
-fn good_turning<R: BufRead>(reader: R) -> Result<(usize, usize), io::Error> {
+fn good_turing<R: BufRead>(reader: R) -> Result<(u32, u32), io::Error> {
     let re = regex!(r"\b\w+\b");
     let mut word_to_count_even = HashMap::new();
     let mut word_set_odd = HashSet::new();
@@ -29,27 +29,27 @@ fn good_turning<R: BufRead>(reader: R) -> Result<(usize, usize), io::Error> {
     let singleton_count_even = word_to_count_even
         .iter()
         .filter(|(_, &count)| count == 1)
-        .count();
+        .count() as u32;
     let only_odd_count = word_set_odd
         .into_iter()
         .filter(|word| !word_to_count_even.contains_key(word))
-        .count();
+        .count() as u32;
 
     Ok((singleton_count_even, only_odd_count))
 }
 
 #[wasm_bindgen]
-pub fn good_turning_js(data: &[u8]) -> Result<Vec<u64>, String> {
+pub fn good_turing_js(data: &[u8]) -> Result<Vec<u32>, String> {
     let reader = BufReader::new(data);
-    match good_turning(reader) {
-        Ok((prediction, actual)) => Ok(vec![prediction as u64, actual as u64]),
+    match good_turing(reader) {
+        Ok((prediction, actual)) => Ok(vec![prediction, actual]),
         Err(e) => Err(format!("Error processing data: {}", e)),
     }
 }
 
 // fn main() {
 //     let file_name = env::args().nth(1).expect("no file name given");
-//     let (singleton_count_even, only_odd_count) = good_turning(&file_name);
+//     let (singleton_count_even, only_odd_count) = good_turing(&file_name);
 
 //     println!(
 //         "Prediction (Words that appear exactly once on even lines): {}",
@@ -72,16 +72,16 @@ mod tests {
     #[test]
     fn test_process_file() {
         let reader = BufReader::new(File::open("pg100.txt").unwrap());
-        let (prediction, actual) = good_turning(reader).unwrap();
+        let (prediction, actual) = good_turing(reader).unwrap();
         assert_eq!(prediction, 10223);
         assert_eq!(actual, 7967);
     }
 
     #[test]
     #[wasm_bindgen_test]
-    fn test_good_turning_js() {
+    fn test_good_turing_js() {
         let data = include_bytes!("../pg100.txt");
-        let result = good_turning_js(data).unwrap();
+        let result = good_turing_js(data).unwrap();
         assert_eq!(result, vec![10223, 7967]);
     }
 }
