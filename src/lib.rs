@@ -43,7 +43,7 @@ pub fn good_turing_js(data: &[u8]) -> Result<Vec<u32>, String> {
     let reader = BufReader::new(data);
     match good_turing(reader) {
         Ok((prediction, actual)) => Ok(vec![prediction, actual]),
-        Err(e) => Err(format!("Error processing data: {}", e)),
+        Err(e) => Err(format!("Error processing data: {e}")),
     }
 }
 
