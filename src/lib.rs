@@ -1,10 +1,18 @@
+use lazy_regex::regex;
 use std::{
     collections::{HashMap, HashSet},
     io::{self, BufRead, BufReader},
 };
-
-use lazy_regex::regex;
 use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub fn good_turing_byte_slice(data: &[u8]) -> Result<Vec<u32>, String> {
+    let reader = BufReader::new(data);
+    match good_turing(reader) {
+        Ok((prediction, actual)) => Ok(vec![prediction, actual]),
+        Err(e) => Err(format!("Error processing data: {e}")),
+    }
+}
 
 fn good_turing<R: BufRead>(reader: R) -> Result<(u32, u32), io::Error> {
     let re = regex!(r"\b\w+\b");
@@ -38,21 +46,12 @@ fn good_turing<R: BufRead>(reader: R) -> Result<(u32, u32), io::Error> {
     Ok((singleton_count_even, only_odd_count))
 }
 
-#[wasm_bindgen]
-pub fn good_turing_js(data: &[u8]) -> Result<Vec<u32>, String> {
-    let reader = BufReader::new(data);
-    match good_turing(reader) {
-        Ok((prediction, actual)) => Ok(vec![prediction, actual]),
-        Err(e) => Err(format!("Error processing data: {e}")),
-    }
-}
-
 // fn main() {
 //     let file_name = env::args().nth(1).expect("no file name given");
-//     let (singleton_count_even, only_odd_count) = good_turing(&file_name);
+//     let (singleton_count_even, only_odd_count) = good_turing(&file_name).unwrap();
 
 //     println!(
-//         "Prediction (Words that appear exactly once on even lines): {}",
+//         "Prediction (words that appear exactly once on even lines): {}",
 //         singleton_count_even
 //     );
 //     println!(
@@ -64,8 +63,9 @@ pub fn good_turing_js(data: &[u8]) -> Result<Vec<u32>, String> {
 // test `process_file` on `./pg100.txt`. The answer is 10223 and 7967.
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::fs::File;
+
+    use super::*;
     use wasm_bindgen_test::wasm_bindgen_test;
     wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
 
@@ -79,9 +79,9 @@ mod tests {
 
     #[test]
     #[wasm_bindgen_test]
-    fn test_good_turing_js() {
+    fn test_good_turning_byte_slice() {
         let data = include_bytes!("../pg100.txt");
-        let result = good_turing_js(data).unwrap();
+        let result = good_turing_byte_slice(data).unwrap();
         assert_eq!(result, vec![10223, 7967]);
     }
 }

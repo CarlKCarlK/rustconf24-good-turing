@@ -1,0 +1,15 @@
+{
+  "name": "good-turing",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "good_turing_bg.wasm",
+    "good_turing.js",
+    "good_turing.d.ts"
+  ],
+  "main": "good_turing.js",
+  "types": "good_turing.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
