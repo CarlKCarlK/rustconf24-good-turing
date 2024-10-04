@@ -23,7 +23,7 @@
                 // View the memory buffer as a Uint8Array
                 const u8array = new Uint8Array(e.target.result);
                 try { // Actually run the WASM
-                    const [prediction, actual] = await good_turing_byte_slice(u8array);
+                    const [prediction, actual] = good_turing_byte_slice(u8array);
                     output.innerHTML =
                         `Prediction (words that appear exactly once on even lines): ${prediction.toLocaleString()}<br>` +
                         `Actual distinct words that appear only on odd lines: ${actual.toLocaleString()}`;
