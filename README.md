@@ -10,6 +10,8 @@ The live demo displays both the estimated and actual number of distinct words th
 
 This is an example from the article [Nine Rules for Running Rust in the Browser](https://medium.com/@carlmkadie).
 
+Project home: <https://github.com/CarlKCarlK/rustconf24-good-turing>
+
 ## License
 
 This project is dual-licensed under the MIT and Apache 2.0 licenses. You may choose either license when using this code.
